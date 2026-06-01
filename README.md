@@ -94,3 +94,14 @@ Uma página única (SPA) esteticamente desenhada para monitores de NOC. Conta co
 3. Abra o arquivo `dashboard/index.html` diretamente em seu navegador (ou sirva com um servidor HTTP simples como o Live Server do VSCode).
 
 *Dica: O arquivo `dashboard/config.js` já está inserido no `.gitignore` e não será enviado para o repositório Git público, mantendo as suas credenciais 100% seguras.*
+
+---
+
+## 📚 Referências & Documentação de Apoio
+
+Para aprofundar os conceitos ensinados nesta aula, consulte os seguintes links oficiais:
+
+* **RFC 2863 (The Interfaces Group MIB)**: [RFC 2863 no IETF](https://datatracker.ietf.org/doc/html/rfc2863) (detalha a transição do padrão de contadores de 32-bits da `ifTable` para contadores de 64-bits `ifXTable` de alta velocidade).
+* **Zabbix API Reference (v7.0)**: [Documentação Oficial do Zabbix](https://www.zabbix.com/documentation/7.0/en/manual/api) (especificação completa do protocolo JSON-RPC 2.0 e métodos como `host.get` e `item.get`).
+* **SNMP Simulator (`snmpsim`)**: [Repositório e Documentação LeXtudio](https://github.com/lextudio/snmpsim) (como funciona o banco de dados `.snmprec` e sintaxe de tradução de tipos).
+* **Chart.js CDN**: [Documentação do Desenvolvedor Chart.js](https://www.chartjs.org/docs/latest/) (biblioteca JavaScript utilizada para a plotagem em tempo real do gráfico de consumo de dados da interface de uplink).
