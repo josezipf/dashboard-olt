@@ -3,12 +3,12 @@
    ------------------------------------------------------------- */
 
 // =============================================================
-// CONFIGURAÇÃO DO ZABBIX (Preencher após implantação)
+// CONFIGURAÇÃO DO ZABBIX (Lida do arquivo config.js)
 // =============================================================
-const ZABBIX_URL = "http://localhost:8081/api_jsonrpc.php";    // Ex: "http://192.168.10.10/zabbix/api_jsonrpc.php"
-const ZABBIX_TOKEN = "96aadc90bd2ca6b08f6fd09efbb4294309560193a67cbd5b883a2b419b469f3e";  // Token gerado no Zabbix 7.0 (Administração -> Tokens de API)
-let HOST_ID = "";         // Deixe vazio para buscar o host "OLT-Simulada-Lab" automaticamente
-const HOST_NAME_TARGET = "OLT LAB";
+const ZABBIX_URL = (typeof CONFIG !== 'undefined') ? CONFIG.ZABBIX_URL : "";
+const ZABBIX_TOKEN = (typeof CONFIG !== 'undefined') ? CONFIG.ZABBIX_TOKEN : "";
+const HOST_NAME_TARGET = (typeof CONFIG !== 'undefined') ? CONFIG.HOST_NAME_TARGET : "OLT LAB";
+let HOST_ID = "";         // Deixe vazio para buscar o host automaticamente
 
 // =============================================================
 // ESTADO GLOBAL DO DASHBOARD
