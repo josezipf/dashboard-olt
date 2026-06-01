@@ -6,15 +6,17 @@ O projeto é ideal para fins didáticos, demonstrações operacionais e treiname
 
 ---
 
-## 📂 Estrutura Recomendada do Repositório
+## 📂 Estrutura do Repositório
 
-Para subir este projeto de forma unificada no GitHub, sugerimos organizar os arquivos na seguinte estrutura:
+O projeto é organizado da seguinte forma:
 
 ```text
 ├── dashboard/               # Frontend SPA (Single Page Application)
 │   ├── index.html           # Layout semântico com Glassmorphism
 │   ├── style.css            # Estilização completa e responsividade
-│   └── app.js               # Lógica em Vanilla JS, Gráficos e API Zabbix
+│   ├── app.js               # Lógica em Vanilla JS e Gráficos
+│   ├── config.example.js    # Modelo de configuração (versionado no Git)
+│   └── config.js            # Credenciais ativas (ignorado pelo Git por segurança)
 │
 ├── simulation-lab/          # Simulador SNMP em Docker
 │   ├── Dockerfile           # Imagem para o snmpsim-lextudio
@@ -24,7 +26,7 @@ Para subir este projeto de forma unificada no GitHub, sugerimos organizar os arq
 │   └── snmp-data/           # Banco de dados SNMP (.snmprec)
 │       └── lab-olt.snmprec  # Arquivo contendo as OIDs e valores simulados
 │
-├── .gitignore               # Arquivos a ignorar no Git
+├── .gitignore               # Arquivos a ignorar no Git (ex: config.js)
 └── README.md                # Esta documentação
 ```
 
@@ -84,4 +86,11 @@ Uma página única (SPA) esteticamente desenhada para monitores de NOC. Conta co
 * **Modo Demo (Simulação Local)**: Caso não queira ou não possa conectar a um servidor Zabbix de imediato, clique no botão **MODO DEMO** no cabeçalho. Ele iniciará um motor javascript local que simula flutuações e alertas de forma totalmente independente e realista!
 
 ### Como Rodar:
-Basta abrir o arquivo `dashboard/index.html` diretamente em qualquer navegador de sua preferência!
+1. Renomeie o arquivo `dashboard/config.example.js` para `dashboard/config.js`:
+   ```bash
+   cp dashboard/config.example.js dashboard/config.js
+   ```
+2. Abra o arquivo `dashboard/config.js` e insira os dados do seu servidor Zabbix (`ZABBIX_URL` e `ZABBIX_TOKEN`).
+3. Abra o arquivo `dashboard/index.html` diretamente em seu navegador (ou sirva com um servidor HTTP simples como o Live Server do VSCode).
+
+*Dica: O arquivo `dashboard/config.js` já está inserido no `.gitignore` e não será enviado para o repositório Git público, mantendo as suas credenciais 100% seguras.*
