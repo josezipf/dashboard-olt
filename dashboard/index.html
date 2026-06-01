@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dashboard de monitoramento em tempo real de OLT e ONUs para NOC telecom. Integrado com Zabbix API 7.0.">
+    <title>NOC Dashboard - OLT Monitor</title>
+    
+    <!-- Fontes do Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- CSS Customizado -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="stars-overlay"></div>
+    <div class="glow-effect"></div>
+
+    <!-- Container Principal do Dashboard -->
+    <div class="dashboard-container">
+        
+        <!-- HEADER DO DASHBOARD -->
+        <header class="main-header glass-effect">
+            <div class="header-logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="pulse-icon">
+                        <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                        <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                        <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                        <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                        <line x1="20" y1="6" x2="20.01" y2="6"></line>
+                        <line x1="20" y1="18" x2="20.01" y2="18"></line>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <h1>NOC OLT MONITOR</h1>
+                    <span class="sub-logo">SISTEMA DE TELEMETRIA FIBRA</span>
+                </div>
+            </div>
+
+            <div class="header-center">
+                <div class="host-info-card">
+                    <span class="label">HOST ATIVO:</span>
+                    <span class="value" id="olt-host-name">Carregando...</span>
+                    <span class="status-indicator online" id="olt-status-badge"></span>
+                </div>
+                <div class="clock-display" id="live-clock">
+                    00:00:00
+                </div>
+            </div>
+
+            <div class="header-status">
+                <div class="status-pill glass-effect" id="api-status-pill">
+                    <span class="pill-dot blink"></span>
+                    <span class="pill-text" id="api-status-text">CONECTANDO...</span>
+                </div>
+                <button class="btn-demo" id="btn-toggle-demo" title="Alternar entre dados reais do Zabbix e simulação local">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    <span>MODO DEMO</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- AVISO DE DESCONEXÃO DA API -->
+        <div class="api-alert-banner" id="api-disconnect-banner" style="display: none;">
+            <div class="banner-content">
+                <div class="banner-icon">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </div>
+                <div class="banner-text">
+                    <h3>ZABBIX API DESCONECTADA</h3>
+                    <p>Não foi possível estabelecer comunicação com o servidor Zabbix. Verifique a URL, Token e conectividade de rede nas configurações no topo do arquivo <code>app.js</code>.</p>
+                </div>
+            </div>
+            <div class="banner-actions">
+                <button class="btn-banner-action" id="btn-banner-retry">Tentar Novamente</button>
+                <button class="btn-banner-action secondary" id="btn-banner-demo">Iniciar Modo Simulação</button>
+            </div>
+        </div>
+
+        <!-- SEÇÃO DE METRICAS GERAIS (KPI CARDS) -->
+        <section class="kpi-section" aria-label="Métricas Principais da OLT">
+            <!-- CPU Card -->
+            <div class="kpi-card glass-effect" id="card-cpu">
+                <div class="kpi-header">
+                    <span class="kpi-title">USO DE CPU OLT</span>
+                    <div class="kpi-icon color-cpu">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                            <rect x="9" y="9" width="6" height="6"></rect>
+                            <line x1="9" y1="1" x2="9" y2="4"></line>
+                            <line x1="15" y1="1" x2="15" y2="4"></line>
+                            <line x1="9" y1="20" x2="9" y2="23"></line>
+                            <line x1="15" y1="20" x2="15" y2="23"></line>
+                            <line x1="20" y1="9" x2="23" y2="9"></line>
+                            <line x1="20" y1="15" x2="23" y2="15"></line>
+                            <line x1="1" y1="9" x2="4" y2="9"></line>
+                            <line x1="1" y1="15" x2="4" y2="15"></line>
+                        </svg>
+                    </div>
+                </div>
+                <div class="kpi-body">
+                    <div class="gauge-container">
+                        <svg viewBox="0 0 100 50" class="gauge">
+                            <!-- Background Arc -->
+                            <path class="gauge-bg" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke-width="8"></path>
+                            <!-- Foreground Arc -->
+                            <path class="gauge-value" id="cpu-gauge-bar" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke-width="8" stroke-dasharray="125.6" stroke-dashoffset="125.6"></path>
+                        </svg>
+                        <div class="gauge-text">
+                            <span class="value font-mono" id="olt-cpu-val">0%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="kpi-footer">
+                    <span>Limite seguro: &lt; 80%</span>
+                </div>
+            </div>
+
+            <!-- Memory Card -->
+            <div class="kpi-card glass-effect" id="card-memory">
+                <div class="kpi-header">
+                    <span class="kpi-title">USO DE MEMÓRIA OLT</span>
+                    <div class="kpi-icon color-memory">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                            <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                            <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                        </svg>
+                    </div>
+                </div>
+                <div class="kpi-body">
+                    <div class="memory-container" style="width: 100%;">
+                        <div class="flex-between" style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: flex-end;">
+                            <span class="digital-glow text-purple font-mono" id="olt-mem-percent" style="font-size: 20px; font-weight: 700;">0%</span>
+                            <span class="font-mono" id="olt-mem-bytes" style="font-size: 11px; color: #94a3b8;">0 / 0 MB</span>
+                        </div>
+                        <div class="progress-bar-bg" style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                            <div class="progress-bar-value" id="olt-mem-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #a855f7, #c084fc); transition: width 0.5s ease-out; box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="kpi-footer">
+                    <span>Limite seguro: &lt; 85%</span>
+                </div>
+            </div>
+
+            <!-- Temperature Card -->
+            <div class="kpi-card glass-effect" id="card-temp">
+                <div class="kpi-header">
+                    <span class="kpi-title">TEMPERATURA CHASSIS</span>
+                    <div class="kpi-icon color-temp">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="kpi-body flex-center">
+                    <div class="digital-metric-container">
+                        <div class="digital-glow text-temp font-mono" id="olt-temp-val">0.0 °C</div>
+                    </div>
+                </div>
+                <div class="kpi-footer">
+                    <span id="olt-temp-status">Status térmico nominal</span>
+                </div>
+            </div>
+
+            <!-- ONUs Status Counter Card -->
+            <div class="kpi-card glass-effect" id="card-onus-summary">
+                <div class="kpi-header">
+                    <span class="kpi-title">RESUMO DE CLIENTES (ONUs)</span>
+                    <div class="kpi-icon color-onus">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="kpi-body flex-around">
+                    <div class="counter-sub-card">
+                        <span class="label">TOTAL</span>
+                        <span class="value font-mono text-cyan" id="onu-total-count">0</span>
+                    </div>
+                    <div class="counter-sub-card border-left">
+                        <span class="label">ONLINE</span>
+                        <span class="value font-mono text-green" id="onu-online-count">0</span>
+                    </div>
+                    <div class="counter-sub-card border-left">
+                        <span class="label">OFFLINE</span>
+                        <span class="value font-mono text-red blink-fast" id="onu-offline-count">0</span>
+                    </div>
+                </div>
+                <div class="kpi-footer">
+                    <span id="onu-percent-online">0% da rede ativa</span>
+                </div>
+            </div>
+
+            <!-- Warning/Sinal RX Card -->
+            <div class="kpi-card glass-effect" id="card-alerts">
+                <div class="kpi-header">
+                    <span class="kpi-title">ALERTA SINAL RX (&lt; -28dBm)</span>
+                    <div class="kpi-icon color-alert">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="kpi-body flex-center">
+                    <div class="metric-highlight font-mono text-yellow" id="onu-low-signal-count">0</div>
+                </div>
+                <div class="kpi-footer">
+                    <span id="rx-alerts-status">Sem atenuações críticas registradas</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- LAYOUT GRID PRINCIPAL -->
+        <main class="dashboard-grid">
+            
+            <!-- GRÁFICO DE TRÁFEGO PON 1 -->
+            <article class="grid-item traffic-chart-wrapper glass-effect">
+                <div class="card-title-bar">
+                    <div class="title-left">
+                        <span class="title-tag green">LIVE</span>
+                        <h2>CONSUMO DE TRÁFEGO - PORTA PON 1</h2>
+                    </div>
+                    <div class="traffic-legend">
+                        <div class="legend-item">
+                            <span class="dot green"></span>
+                            <span>Download (IF In): <strong id="traffic-in-current" class="font-mono">0.00 Mbps</strong></span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="dot blue"></span>
+                            <span>Upload (IF Out): <strong id="traffic-out-current" class="font-mono">0.00 Mbps</strong></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="trafficChart" aria-label="Gráfico de tráfego PON 1 em Mbps"></canvas>
+                </div>
+            </article>
+
+            <!-- TABELA DE ONUs (CLIENTES) -->
+            <article class="grid-item onus-table-wrapper glass-effect">
+                <div class="card-title-bar">
+                    <div class="title-left">
+                        <h2>MONITORAMENTO DE ONUS</h2>
+                    </div>
+                    <div class="table-actions">
+                        <div class="search-box">
+                            <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" id="search-onu" placeholder="Filtrar ONUs (Nome ou ID)..." aria-label="Filtrar ONUs">
+                        </div>
+                        <div class="filter-pills">
+                            <button class="pill active" data-filter="all">Todas</button>
+                            <button class="pill" data-filter="online">Online</button>
+                            <button class="pill" data-filter="offline">Offline</button>
+                            <button class="pill" data-filter="warning">Sinal Ruim</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="onu-data-table" id="onu-table">
+                        <thead>
+                            <tr>
+                                <th>ONU / ID</th>
+                                <th>IDENTIFICAÇÃO NO ZABBIX</th>
+                                <th>SINAL RX (dBm)</th>
+                                <th>STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="onu-table-body">
+                            <tr>
+                                <td colspan="4" class="table-loader">
+                                    <div class="spinner"></div>
+                                    <span>Aguardando telemetria...</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination-container" id="onu-pagination"></div>
+            </article>
+
+        </main>
+
+        <!-- FOOTER DO NOC -->
+        <footer class="main-footer">
+            <p>NOC Dashboard OLT v2.0 &bull; Zabbix API 7.0 &bull; Atualização a cada 10s</p>
+            <div class="footer-meta">
+                <span id="last-update-time">Último refresh: --:--:--</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts do Sistema -->
+    <script src="app.js"></script>
+</body>
+</html>

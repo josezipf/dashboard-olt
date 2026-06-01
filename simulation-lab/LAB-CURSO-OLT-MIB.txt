@@ -1,0 +1,123 @@
+LAB-CURSO-OLT-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Integer32, Gauge32, enterprises
+        FROM SNMPv2-SMI;
+
+labCursoOLT MODULE-IDENTITY
+    LAST-UPDATED "202605310000Z"
+    ORGANIZATION "NOC Modo Hard"
+    CONTACT-INFO "Instrutor: Evandro"
+    DESCRIPTION  "MIB didatica para o Laboratorio de OLT"
+    ::= { enterprises 99999 }
+
+-- ==========================================
+-- 1. Metricas de Hardware
+-- ==========================================
+oltHardware OBJECT IDENTIFIER ::= { labCursoOLT 1 }
+
+oltTemperature OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Temperatura do chassi da OLT em graus Celsius"
+    ::= { oltHardware 1 }
+
+oltCpuUsage OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Uso de CPU da OLT em porcentagem"
+    ::= { oltHardware 2 }
+
+oltMemory OBJECT IDENTIFIER ::= { oltHardware 3 }
+
+oltMemoryTotal OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Memoria Total em KB"
+    ::= { oltMemory 1 }
+
+oltMemoryUsed OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Memoria Usada em KB"
+    ::= { oltMemory 2 }
+
+-- ==========================================
+-- 2. Metricas Gerais de PON
+-- ==========================================
+oltPON OBJECT IDENTIFIER ::= { labCursoOLT 2 }
+
+oltOnuCount OBJECT IDENTIFIER ::= { oltPON 1 }
+
+oltOnuCountPon1 OBJECT-TYPE
+    SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Quantidade de ONUs ativas na PON 1"
+    ::= { oltOnuCount 1 }
+
+oltOnuCountPon2 OBJECT-TYPE
+    SYNTAX      Gauge32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Quantidade de ONUs ativas na PON 2"
+    ::= { oltOnuCount 2 }
+
+-- ==========================================
+-- 3. Tabela de ONUs (Para LLD)
+-- ==========================================
+oltOnuTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OltOnuEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Tabela detalhada de ONUs (Sinal, Status, Nome)"
+    ::= { labCursoOLT 3 }
+
+oltOnuEntry OBJECT-TYPE
+    SYNTAX      OltOnuEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Entrada individual de uma ONU na tabela"
+    INDEX       { oltOnuIndex }
+    ::= { oltOnuTable 1 }
+
+OltOnuEntry ::= SEQUENCE {
+    oltOnuIndex    Integer32,
+    oltOnuName     OCTET STRING,
+    oltOnuStatus   Integer32,
+    oltOnuRxPower  Integer32
+}
+
+oltOnuIndex OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Indice sequencial da ONU"
+    ::= { oltOnuEntry 1 }
+
+oltOnuName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Nome do Cliente provisionado na ONU"
+    ::= { oltOnuEntry 2 }
+
+oltOnuStatus OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Status da ONU (1=Online, 2=Offline/LOS)"
+    ::= { oltOnuEntry 3 }
+
+oltOnuRxPower OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Sinal Optico RX (Deve ser multiplicado por 0.1 no Zabbix)"
+    ::= { oltOnuEntry 4 }
+
+END

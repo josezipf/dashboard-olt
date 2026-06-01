@@ -1,0 +1,9 @@
+services:
+  snmpsim:
+    build: .
+    container_name: lab-olt-simulator
+    ports:
+      - "161:161/udp"
+    volumes:
+      - ./snmp-data:/data
+    restart: unless-stopped
