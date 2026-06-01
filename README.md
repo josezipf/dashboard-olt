@@ -1,5 +1,8 @@
 # Lab de Simulação SNMP de OLT & Dashboard NOC SPA
 
+> [!IMPORTANT]
+> **Aviso de Uso**: Este repositório e seus componentes (simulador SNMP e painel de telemetria) são fornecidos exclusivamente para **fins didáticos, de estudo e demonstração em ambiente de laboratório**. Não devem ser utilizados em ambientes de produção.
+
 Este repositório contém um laboratório completo de simulação SNMP de uma OLT (Equipamento de Provedor de Internet/Fibra) integrado a um dashboard de monitoramento em tempo real (NOC Screen) voltado para TVs e centrais de operações de rede.
 
 O projeto é ideal para fins didáticos, demonstrações operacionais e treinamento de equipes de infraestrutura de telecomunicações.
